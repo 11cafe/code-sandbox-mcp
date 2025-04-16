@@ -3,9 +3,34 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
+import { createWriteStream } from "fs";
+
+// Override console.log and console.error for debug logging, cannot use process.stdout redirect cuz it breaks mcp stdio transport
+const logStream = createWriteStream(
+  "/Users/weixuan/git/code-sandbox-mcp/output.log",
+  { flags: "a" }
+);
+const originalConsoleLog = console.log;
+const originalConsoleError = console.error;
+
+console.log = (...args) => {
+  const message = args
+    .map((arg) => (typeof arg === "object" ? JSON.stringify(arg) : String(arg)))
+    .join(" ");
+  logStream.write(`[LOG] ${new Date().toISOString()}: ${message}\n`);
+  originalConsoleLog.apply(console, args);
+};
+
+console.error = (...args) => {
+  const message = args
+    .map((arg) => (typeof arg === "object" ? JSON.stringify(arg) : String(arg)))
+    .join(" ");
+  logStream.write(`[ERROR] ${new Date().toISOString()}: ${message}\n`);
+  originalConsoleError.apply(console, args);
+};
 
 const API_BASE = process.env.API_BASE || "http://localhost:3000";
-console.log("API_BASE", API_BASE);
+console.log("API_BASE 4444", API_BASE);
 
 // Helper function for making API requests
 function fetchAPI<T>(url: string, options?: RequestInit) {
@@ -13,16 +38,6 @@ function fetchAPI<T>(url: string, options?: RequestInit) {
     url = `/${url}`;
   }
   return fetch(`${API_BASE}${url}`, options);
-}
-
-interface AlertFeature {
-  properties: {
-    event?: string;
-    areaDesc?: string;
-    severity?: string;
-    status?: string;
-    headline?: string;
-  };
 }
 
 // Create server instance
@@ -49,25 +64,42 @@ server.tool(
       ),
   },
   async ({ path, content, sandbox_id }) => {
-    if (!path?.length) {
-      throw new Error(`Invalid arguments: path is required`);
-    }
-    if (!content?.length) {
-      throw new Error(`Invalid arguments: content is required`);
-    }
-    const response = await fetchAPI(`/api/tools/write_file`, {
-      method: "POST",
-      body: JSON.stringify({ path, content, sandbox_id }),
-    });
-    const data = await response.json();
-    return {
-      content: [
-        {
-          type: "text",
-          text: data.text,
+    try {
+      if (!path?.length) {
+        throw new Error(`Invalid arguments: path is required`);
+      }
+      if (!content?.length) {
+        throw new Error(`Invalid arguments: content is required`);
+      }
+      const response = await fetchAPI(`/api/tools/write_file`, {
+        method: "POST",
+        body: JSON.stringify({ path, content, sandbox_id }),
+        headers: {
+          "Content-Type": "application/json",
         },
-      ],
-    };
+      });
+
+      const data = await response.json();
+      return {
+        content: [
+          {
+            type: "text",
+            text:
+              data.text || data.error || "Failed to write file, unknown error",
+          },
+        ],
+      };
+    } catch (e) {
+      console.error(e);
+      return {
+        content: [
+          {
+            type: "text",
+            text: `Error writing file: ${e}`,
+          },
+        ],
+      };
+    }
   }
 );
 
@@ -88,6 +120,9 @@ server.tool(
     const response = await fetchAPI(`/api/tools/read_file`, {
       method: "POST",
       body: JSON.stringify({ path, sandbox_id }),
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
     const data = await response.json();
     return {
@@ -120,6 +155,9 @@ server.tool(
     const response = await fetchAPI(`/api/tools/list_directory`, {
       method: "POST",
       body: JSON.stringify({ path, sandbox_id }),
+      headers: {
+        "Content-Type": "application/json",
+      },
     });
     const data = await response.json();
     return {
