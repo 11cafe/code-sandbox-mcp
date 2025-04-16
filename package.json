@@ -1,6 +1,6 @@
 {
   "name": "code-sandbox-mcp",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "main": "index.js",
   "type": "module",
   "bin": "./build/index.js",
