@@ -30,7 +30,7 @@ console.error = (...args) => {
 };
 
 const API_BASE = process.env.API_BASE || "http://localhost:3000";
-console.log("API_BASE 4444", API_BASE);
+// console.log("API_BASE 4444", API_BASE);
 
 // Helper function for making API requests
 function fetchAPI<T>(url: string, options?: RequestInit) {
@@ -117,22 +117,30 @@ server.tool(
       .describe("The sandbox id of an existing sandbox to read from"),
   },
   async ({ path, sandbox_id }) => {
-    const response = await fetchAPI(`/api/tools/read_file`, {
-      method: "POST",
-      body: JSON.stringify({ path, sandbox_id }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await response.json();
-    return {
-      content: [
-        {
-          type: "text",
-          text: data.text,
+    try {
+      const response = await fetchAPI(`/api/tools/read_file`, {
+        method: "POST",
+        body: JSON.stringify({ path, sandbox_id }),
+        headers: {
+          "Content-Type": "application/json",
         },
-      ],
-    };
+      });
+      const data = await response.json();
+      return {
+        content: [
+          {
+            type: "text",
+            text:
+              data.text || data.error || "Failed to read file, unknown error",
+          },
+        ],
+      };
+    } catch (e) {
+      console.error(e);
+      return {
+        content: [{ type: "text", text: `Error reading file: ${e}` }],
+      };
+    }
   }
 );
 
@@ -152,22 +160,29 @@ server.tool(
       ),
   },
   async ({ path, sandbox_id }) => {
-    const response = await fetchAPI(`/api/tools/list_directory`, {
-      method: "POST",
-      body: JSON.stringify({ path, sandbox_id }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const data = await response.json();
-    return {
-      content: [
-        {
-          type: "text",
-          text: data.text,
+    try {
+      const response = await fetchAPI(`/api/tools/list_directory`, {
+        method: "POST",
+        body: JSON.stringify({ path, sandbox_id }),
+        headers: {
+          "Content-Type": "application/json",
         },
-      ],
-    };
+      });
+      const data = await response.json();
+      return {
+        content: [
+          {
+            type: "text",
+            text: data.text || data.error || "Failed to list directory",
+          },
+        ],
+      };
+    } catch (e) {
+      console.error(e);
+      return {
+        content: [{ type: "text", text: `Error listing directory: ${e}` }],
+      };
+    }
   }
 );
 
@@ -183,19 +198,29 @@ server.tool(
       ),
   },
   async ({ command, sandbox_id }) => {
-    const response = await fetchAPI(`/api/tools/execute_command`, {
-      method: "POST",
-      body: JSON.stringify({ command, sandbox_id }),
-    });
-    const data = await response.json();
-    return {
-      content: [
-        {
-          type: "text",
-          text: data.text,
+    try {
+      const response = await fetchAPI(`/api/tools/execute_command`, {
+        method: "POST",
+        body: JSON.stringify({ command, sandbox_id }),
+        headers: {
+          "Content-Type": "application/json",
         },
-      ],
-    };
+      });
+      const data = await response.json();
+      return {
+        content: [
+          {
+            type: "text",
+            text: data.text || data.error || "Failed to execute command",
+          },
+        ],
+      };
+    } catch (e) {
+      console.error(e);
+      return {
+        content: [{ type: "text", text: `Error executing command: ${e}` }],
+      };
+    }
   }
 );
 
