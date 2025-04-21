@@ -4,6 +4,8 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import { createWriteStream } from "fs";
+import { exec } from "child_process";
+import { promisify } from "util";
 
 // Override console.log and console.error for debug logging, cannot use process.stdout redirect cuz it breaks mcp stdio transport
 const logStream = createWriteStream(
@@ -29,9 +31,9 @@ console.error = (...args) => {
   originalConsoleError.apply(console, args);
 };
 
-const API_BASE = process.env.API_BASE || "http://localhost:3000";
+const API_BASE = process.env.API_BASE || "http://runbox.ai";
 const apiKey = process.env.API_KEY;
-// console.log("API_BASE 4444", API_BASE);
+const execPromise = promisify(exec);
 
 // Helper function for making API requests
 function fetchAPI<T>(url: string, options?: RequestInit) {
@@ -48,8 +50,8 @@ const server = new McpServer({
 });
 
 server.tool(
-  "sandbox_create_sandbox",
-  "Create a new python+nodejs code linux sandbox to write code files and run it",
+  "runbox_create_sandbox",
+  "Create a new python+nodejs Runbox code sandbox linux debian to write code files and run it",
   {},
   async ({}) => {
     const data = await fetchAPI(`/api/tools/create_sandbox`, {
@@ -60,7 +62,17 @@ server.tool(
         "x-api-key": apiKey || "",
       },
     }).then((res) => res.json());
-
+    if (data.url) {
+      console.log("opening data.url", data.url);
+      try {
+        // open the url in the browser
+        const { stdout, stderr } = await execPromise(`open ${data.url}`);
+        console.log("stdout:", stdout);
+        console.error("stderr:", stderr);
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    }
     return {
       content: [
         {
@@ -76,8 +88,8 @@ server.tool(
 );
 
 server.tool(
-  "sandbox_expose_port",
-  "Expose a port in a code sandbox to the public internet for user testing. It returns a url that can access your local running web server at 0.0.0.0:port in your sandbox",
+  "runbox_expose_port",
+  "Expose a port in a Runbox code sandbox to the public internet for user testing. It returns a url that can access your local running web server at 0.0.0.0:port in your sandbox",
   {
     port: z
       .number()
@@ -119,8 +131,8 @@ server.tool(
 );
 
 server.tool(
-  "sandbox_write_file",
-  "Create a new file or overwrite an existing file in a python+nodejs code linux sandbox",
+  "runbox_write_file",
+  "Create a new file or overwrite an existing file in a Runbox linux sandbox. Will return a url to view the file in the sandbox, please display it to the user",
   {
     path: z
       .string()
@@ -174,8 +186,8 @@ server.tool(
 );
 
 server.tool(
-  "sandbox_read_file",
-  "Read the content of a file from an existing python+nodejs code sandbox linux debian VM",
+  "runbox_read_file",
+  "Read the content of a file from an existing Runbox linux sandbox",
   {
     path: z
       .string()
@@ -216,7 +228,7 @@ server.tool(
 );
 
 server.tool(
-  "sandbox_list_directory",
+  "runbox_list_directory",
   "List all direct children in a directory in an existing code sandbox, non recursive, linux debian VM",
   {
     path: z
@@ -259,8 +271,8 @@ server.tool(
 );
 
 server.tool(
-  "sandbox_execute_command",
-  "Execute a command in an existing nodejs+python code sandbox in a Linux debian VM",
+  "runbox_execute_command",
+  "Execute a command in an existing nodejs+python Runbox linux debian sandbox",
   {
     command: z.string().describe("The command to execute"),
     sandbox_id: z
