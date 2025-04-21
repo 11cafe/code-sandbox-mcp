@@ -30,6 +30,7 @@ console.error = (...args) => {
 };
 
 const API_BASE = process.env.API_BASE || "http://localhost:3000";
+const apiKey = process.env.API_KEY;
 // console.log("API_BASE 4444", API_BASE);
 
 // Helper function for making API requests
@@ -47,8 +48,79 @@ const server = new McpServer({
 });
 
 server.tool(
+  "sandbox_create_sandbox",
+  "Create a new python+nodejs code linux sandbox to write code files and run it",
+  {},
+  async ({}) => {
+    const data = await fetchAPI(`/api/tools/create_sandbox`, {
+      method: "POST",
+      body: JSON.stringify({}),
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey || "",
+      },
+    }).then((res) => res.json());
+
+    return {
+      content: [
+        {
+          type: "text",
+          text:
+            data.text ||
+            data.error ||
+            "Failed to create sandbox, unknown error",
+        },
+      ],
+    };
+  }
+);
+
+server.tool(
+  "sandbox_expose_port",
+  "Expose a port in a code sandbox to the public internet for user testing. It returns a url that can access your local running web server at 0.0.0.0:port in your sandbox",
+  {
+    port: z
+      .number()
+      .describe(
+        "The port of your ALREADY RUNNING and listening web server at 0.0.0.0:[port] to expose to the public internet for user testing"
+      ),
+    sandbox_id: z
+      .string()
+      .describe(
+        "The sandbox id of an existing sandbox that is running the web server"
+      ),
+  },
+  async ({ port, sandbox_id }) => {
+    if (!port) {
+      throw new Error(`Invalid arguments: port is required`);
+    }
+    if (!sandbox_id?.length) {
+      throw new Error(`Invalid arguments: sandbox_id is required`);
+    }
+    const data = await fetchAPI(`/api/tools/expose_port`, {
+      method: "POST",
+      body: JSON.stringify({ port, sandbox_id }),
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey || "",
+      },
+    }).then((res) => res.json());
+
+    return {
+      content: [
+        {
+          type: "text",
+          text:
+            data.text || data.error || "Failed to serve website, unknown error",
+        },
+      ],
+    };
+  }
+);
+
+server.tool(
   "sandbox_write_file",
-  "Create a new file or overwrite an existing file in a python+nodejs code linux sandbox, auto create new sandbox if sandbox_id is undefined",
+  "Create a new file or overwrite an existing file in a python+nodejs code linux sandbox",
   {
     path: z
       .string()
@@ -58,10 +130,7 @@ server.tool(
     content: z.string().describe("The content to write to the file"),
     sandbox_id: z
       .string()
-      .optional()
-      .describe(
-        "The sandbox id of an existing sandbox to write the file to, will create new if undefined"
-      ),
+      .describe("The sandbox id of an existing sandbox to write the file to"),
   },
   async ({ path, content, sandbox_id }) => {
     try {
@@ -76,6 +145,7 @@ server.tool(
         body: JSON.stringify({ path, content, sandbox_id }),
         headers: {
           "Content-Type": "application/json",
+          "x-api-key": apiKey || "",
         },
       });
 
@@ -123,6 +193,7 @@ server.tool(
         body: JSON.stringify({ path, sandbox_id }),
         headers: {
           "Content-Type": "application/json",
+          "x-api-key": apiKey || "",
         },
       });
       const data = await response.json();
@@ -166,6 +237,7 @@ server.tool(
         body: JSON.stringify({ path, sandbox_id }),
         headers: {
           "Content-Type": "application/json",
+          "x-api-key": apiKey || "",
         },
       });
       const data = await response.json();
@@ -204,6 +276,7 @@ server.tool(
         body: JSON.stringify({ command, sandbox_id }),
         headers: {
           "Content-Type": "application/json",
+          "x-api-key": apiKey || "",
         },
       });
       const data = await response.json();
