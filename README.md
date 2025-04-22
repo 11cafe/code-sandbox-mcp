@@ -5,14 +5,17 @@ Codebox MCP provides remote coding environment for AI and agents. It allows AI t
 Capability:
 
 - Read/write code
-- Execute commands in terminal to test the code
-- Return command output to agent
-- Test code by viewing browser screenshot
+- Execute commands in terminal to test the code and fix bugs
+- Serve website code as real URL to test demo
+- Publish static html, js, css files as public URL to share
 
-Without Codebox, writing code with Cursor be like:
+## Install
 
-- Ask Cursor to write some code, apply to local files
-- Run command in termnail, found errors
-- Paste errors to Curosr, apply fix again
-- Test manually in browser
-- Keep pasting/applying until things works
+```json
+{
+  "code-sandbox-dev": {
+    "command": "npx",
+    "args": ["code-sandbox-mcp"]
+  }
+}
+```

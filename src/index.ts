@@ -31,7 +31,7 @@ console.error = (...args) => {
   originalConsoleError.apply(console, args);
 };
 
-const API_BASE = process.env.API_BASE || "http://runbox.ai";
+const API_BASE = process.env.API_BASE || "https://runbox.ai";
 const apiKey = process.env.API_KEY;
 const execPromise = promisify(exec);
 
@@ -81,6 +81,41 @@ server.tool(
             data.text ||
             data.error ||
             "Failed to create sandbox, unknown error",
+        },
+      ],
+    };
+  }
+);
+
+server.tool(
+  "runbox_serve_static_website",
+  "Serve a static website in a Runbox code sandbox. Just write all your static html, css, js files to the sandbox. You will get a url to access your website. Must have a ./index.html file in the sandbox root directory.",
+  {
+    sandbox_id: z
+      .string()
+      .describe(
+        "The sandbox id of an existing sandbox that is running the web server"
+      ),
+  },
+  async ({ sandbox_id }) => {
+    if (!sandbox_id?.length) {
+      throw new Error(`Invalid arguments: sandbox_id is required`);
+    }
+    const data = await fetchAPI(`/api/tools/serve_static_website`, {
+      method: "POST",
+      body: JSON.stringify({ sandbox_id }),
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey || "",
+      },
+    }).then((res) => res.json());
+
+    return {
+      content: [
+        {
+          type: "text",
+          text:
+            data.text || data.error || "Failed to serve website, unknown error",
         },
       ],
     };
