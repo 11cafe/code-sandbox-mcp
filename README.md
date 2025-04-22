@@ -4,10 +4,10 @@ Codebox MCP provides remote coding environment for AI and agents. It allows AI t
 
 Capability:
 
-- Read/write code
-- Execute commands in terminal to test the code and fix bugs
-- Serve website code as real URL to test demo
-- Publish static html, js, css files as public URL to share
+- Build website, read/write code in remote code sandbox
+- Execute commands safely in remote sandbox to test the code and fix bugs
+- Serve code as real website URL to test demo
+- Publish static html, js, css files as public website URL to share
 
 ## Install
 
