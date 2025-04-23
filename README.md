@@ -1,21 +1,23 @@
-# Full capable coding agent MCP server
+# Runbox Website Publisher MCP
 
-Codebox MCP provides remote coding environment for AI and agents. It allows AI to act in agent mode to fully automatically develop any apps or websites or data analysis scripts at your request (python, js, desktop electron apps or anything).
+Runbox MCP provides remote coding environment for AI and agents. It can publish your AI-written website code as real world URL domain. Deploy your AI generated code as a real website running in remote server.
 
 Capability:
 
+- Publish static html, js, css files as public website URL to share
 - Build website, read/write code in remote code sandbox
 - Execute commands safely in remote sandbox to test the code and fix bugs
 - Serve code as real website URL to test demo
-- Publish static html, js, css files as public website URL to share
 
 ## Install
 
 ```json
 {
-  "code-sandbox-dev": {
-    "command": "npx",
-    "args": ["code-sandbox-mcp"]
+  "mcpServers": {
+    "runbox-website-publisher": {
+      "command": "npx",
+      "args": ["-y", "code-sandbox-mcp@latest"]
+    }
   }
 }
 ```

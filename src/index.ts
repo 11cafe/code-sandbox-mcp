@@ -8,28 +8,28 @@ import { exec } from "child_process";
 import { promisify } from "util";
 
 // Override console.log and console.error for debug logging, cannot use process.stdout redirect cuz it breaks mcp stdio transport
-const logStream = createWriteStream(
-  "/Users/weixuan/git/code-sandbox-mcp/output.log",
-  { flags: "a" }
-);
-const originalConsoleLog = console.log;
-const originalConsoleError = console.error;
+// const logStream = createWriteStream(
+//   "/Users/weixuan/git/code-sandbox-mcp/output.log",
+//   { flags: "a" }
+// );
+// const originalConsoleLog = console.log;
+// const originalConsoleError = console.error;
 
-console.log = (...args) => {
-  const message = args
-    .map((arg) => (typeof arg === "object" ? JSON.stringify(arg) : String(arg)))
-    .join(" ");
-  logStream.write(`[LOG] ${new Date().toISOString()}: ${message}\n`);
-  originalConsoleLog.apply(console, args);
-};
+// console.log = (...args) => {
+//   const message = args
+//     .map((arg) => (typeof arg === "object" ? JSON.stringify(arg) : String(arg)))
+//     .join(" ");
+//   logStream.write(`[LOG] ${new Date().toISOString()}: ${message}\n`);
+//   originalConsoleLog.apply(console, args);
+// };
 
-console.error = (...args) => {
-  const message = args
-    .map((arg) => (typeof arg === "object" ? JSON.stringify(arg) : String(arg)))
-    .join(" ");
-  logStream.write(`[ERROR] ${new Date().toISOString()}: ${message}\n`);
-  originalConsoleError.apply(console, args);
-};
+// console.error = (...args) => {
+//   const message = args
+//     .map((arg) => (typeof arg === "object" ? JSON.stringify(arg) : String(arg)))
+//     .join(" ");
+//   logStream.write(`[ERROR] ${new Date().toISOString()}: ${message}\n`);
+//   originalConsoleError.apply(console, args);
+// };
 
 const API_BASE = process.env.API_BASE || "https://runbox.ai";
 const apiKey = process.env.API_KEY;
