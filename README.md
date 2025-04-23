@@ -1,4 +1,4 @@
-# Runbox Website Publisher MCP
+# Runbox Website Builder MCP
 
 Runbox MCP provides remote coding environment for AI and agents. It can publish your AI-written website code as real world URL domain. Deploy your AI generated code as a real website running in remote server.
 
