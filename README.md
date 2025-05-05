@@ -5,6 +5,7 @@ Runbox MCP provides remote coding environment for AI and agents. It can publish 
 Capability:
 
 - Publish static html, js, css files as public website URL to share
+- Live code editor to edit source code and update website content
 - Build website, read/write code in remote code sandbox
 - Execute commands safely in remote sandbox to test the code and fix bugs
 - Serve code as real website URL to test demo
