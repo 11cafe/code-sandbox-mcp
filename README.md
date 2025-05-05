@@ -10,7 +10,7 @@ Capability:
 - Execute commands safely in remote sandbox to test the code and fix bugs
 - Serve code as real website URL to test demo
 
-server side code: https://github.com/11cafe/code-sandbox-server
+demo video: https://www.youtube.com/watch?v=ONvT516jLBo
 
 ## Install
 
@@ -44,4 +44,8 @@ Easily view and edit Claude generated code in a live editor
 Support multiple html, js, css and other files
 
 <img width="309" alt="Screenshot 2025-04-23 at 8 55 32 PM" src="https://github.com/user-attachments/assets/a4d87c6a-c8d1-460d-b98a-919c7f039b5f" />
+
+## Dev
+
+server side code: https://github.com/11cafe/code-sandbox-server
 
